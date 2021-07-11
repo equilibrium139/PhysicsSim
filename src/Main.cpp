@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include <optional>
 
 bool InitSDL() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -22,8 +23,21 @@ void QuitSDL() {
 	SDL_Quit();
 }
 
+struct Vec3 {
+	union {
+		struct {
+			float x, y, z;
+		};
+		float v[3];
+	};
+};
+
 int main(int argc, char *argv[])
-{
+{	
+	Vec3 vec;
+	vec.x = 1;
+	std::cout << vec.x << '\n';
+	
 	if (!InitSDL()) {
         std::cerr << "Failed to initialize SDL\n";
 		return -1;
@@ -37,11 +51,6 @@ int main(int argc, char *argv[])
 		std::cerr << "Error creating SDL window.\n";
 		return -1;
 	}
-
-	// True fullscreen is impossible to debug so only enable it in release mode
-#ifdef NDEBUG
-	SDL_SetWindowFullscreen(sdlWindow, SDL_WINDOW_FULLSCREEN);
-#endif 
 
 	auto renderer = SDL_CreateRenderer(sdlWindow, -1, 0);
 	if (!renderer) {

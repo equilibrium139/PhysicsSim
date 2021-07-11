@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 project(PhysicsSim)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,10 +7,10 @@ add_executable(${PROJECT_NAME} src/Main.cpp)
 
 find_library(SDL2_LIBRARY SDL2)
 find_library(SDL2_MAIN_LIBRARY SDL2main)
-find_path(SDL2_HEADER_DIR SDL.h)
+find_path(SDL2_HEADER_DIR SDL.h PATH_SUFFIXES SDL2)
 
 find_library(SDL2_IMG_LIBRARY SDL2_image)
-find_path(SDL2_IMG_HEADER_DIR SDL_image.h)
+find_path(SDL2_IMG_HEADER_DIR SDL_image.h PATH_SUFFIXES SDL2)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${SDL2_LIBRARY} ${SDL2_MAIN_LIBRARY} ${SDL2_IMG_LIBRARY})
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_IMG_HEADER_DIR} ${SDL2_HEADER_DIR})
