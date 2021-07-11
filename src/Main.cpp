@@ -1,7 +1,54 @@
 #include <SDL.h>
 #include <SDL_image.h>
-#include <iostream>
-#include <optional>
+
+#include "Renderer.h"
+#include "Scene.h"
+#include "Window.h"
+
+bool ProcessInput(Camera &camera, float deltaTime)
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			return false;
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_ESCAPE:
+				return false;
+			}
+			break;
+		case SDL_MOUSEMOTION:
+			camera.ProcessMouseMovement(event.motion.xrel, -event.motion.yrel);
+			break;
+		}
+	}
+
+	// Processing these key presses with keyboard state feels smoother than processing
+	// them as events in the switch above
+	auto keyboardState = SDL_GetKeyboardState(NULL);
+	if (keyboardState[SDL_SCANCODE_W])
+	{
+		camera.ProcessKeyboard(CAM_FORWARD, deltaTime);
+	}
+	if (keyboardState[SDL_SCANCODE_S])
+	{
+		camera.ProcessKeyboard(CAM_BACKWARD, deltaTime);
+	}
+	if (keyboardState[SDL_SCANCODE_A])
+	{
+		camera.ProcessKeyboard(CAM_LEFT, deltaTime);
+	}
+	if (keyboardState[SDL_SCANCODE_D])
+	{
+		camera.ProcessKeyboard(CAM_RIGHT, deltaTime);
+	}
+
+	return true;
+}
 
 bool InitSDL() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -23,68 +70,56 @@ void QuitSDL() {
 	SDL_Quit();
 }
 
-struct Vec3 {
-	union {
-		struct {
-			float x, y, z;
-		};
-		float v[3];
-	};
-};
-
 int main(int argc, char *argv[])
-{	
-	Vec3 vec;
-	vec.x = 1;
-	std::cout << vec.x << '\n';
-	
+{
 	if (!InitSDL()) {
-        std::cerr << "Failed to initialize SDL\n";
 		return -1;
 	}
 
-	constexpr int width = 1280;
-	constexpr int height = 720;
+	constexpr int FPS = 30;
+	constexpr float frameTimeTargetMS = (int)(1000.0f / FPS);
+	constexpr float msToSecondsFactor = 1.0f / 1000.0f;
 
-	auto sdlWindow = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_BORDERLESS);
-	if (!sdlWindow) {
-		std::cerr << "Error creating SDL window.\n";
-		return -1;
-	}
+	auto wnd = Window::CreateFullscreen();
 
-	auto renderer = SDL_CreateRenderer(sdlWindow, -1, 0);
-	if (!renderer) {
-		std::cerr << "Error creating SDL renderer.\n";
-		return -1;
-	}
+	if (wnd) {
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+		Window& window = wnd.value();
+		Renderer renderer(window.w(), window.h());
+		Scene scene;
+		scene.cam.position.z = -5;
+		scene.models.push_back(Model("drone.obj", "drone.png"));
+		std::uint32_t previousFrameTime = 0;
+		float deltaTime = 0.0f;
+		bool isRunning = ProcessInput(scene.cam, deltaTime);
 
-	bool isRunning = true;
-	while (isRunning)
-	{
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
+		while (isRunning)
 		{
-			switch (event.type)
+			// Sleep if frame time less than target frame time
+			auto targetTime = previousFrameTime + frameTimeTargetMS;
+			auto currentTime = SDL_GetTicks();
+			auto waitTime = targetTime - currentTime;
+			if (waitTime > 0)
 			{
-			case SDL_QUIT:
-				isRunning = false;
-				break;
-			case SDL_KEYDOWN:
-				switch (event.key.keysym.sym)
-				{
-				case SDLK_ESCAPE:
-					isRunning = false;
-					break;
-				}
+				SDL_Delay(waitTime);
 			}
-		}
+			currentTime = SDL_GetTicks();
+			deltaTime = (currentTime - previousFrameTime) * msToSecondsFactor;
+			std::cout << deltaTime << '\n';
+			previousFrameTime = SDL_GetTicks();
 
-		SDL_RenderPresent(renderer);
+			isRunning = ProcessInput(scene.cam, deltaTime);
+
+			renderer.Render(scene);
+			window.CopyAndPresent(renderer.ColorBufferData(), renderer.Pitch());
+			renderer.ClearBuffers();
+		}
+	}
+	else {
+		std::cerr << "Failed to create window\n";
 	}
 
-    std::cout << "Hello, CMake\n"; 
+	QuitSDL();
 
-    return EXIT_SUCCESS;
+	return 0;
 }
