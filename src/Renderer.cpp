@@ -9,8 +9,8 @@
 #include <iostream>
 
 Renderer::Renderer(int width, int height)
-	: width(width), height(height), colorBuffer((Color*)_aligned_malloc(width * height * sizeof(Color), 16)), 
-		depthBuffer((float*)_aligned_malloc(width* height * sizeof(float), 16))
+	: width(width), height(height), colorBuffer((Color*)AlignedAlloc(width * height * sizeof(Color), 16)), 
+		depthBuffer((float*)AlignedAlloc(width* height * sizeof(float), 16))
 {
 	ClearBuffers();
 }

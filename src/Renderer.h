@@ -1,17 +1,19 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "AlignedAlloc.h"
 #include "Scene.h"
 #include "Window.h"
 
+#include <algorithm>
 #include <vector>
 
 class Renderer {
 public:
     Renderer(int width, int height);
     ~Renderer() {
-        _aligned_free(colorBuffer);
-        _aligned_free(depthBuffer);
+        AlignedFree(colorBuffer);
+        AlignedFree(depthBuffer);
     }
     void Render(const Scene& scene);
     void Render(const Model& model, const Mat4& view, const Mat4& proj);

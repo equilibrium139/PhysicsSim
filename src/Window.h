@@ -21,4 +21,4 @@ private:
 	int width, height;
 };
 
-#endif WINDOW_H
+#endif // WINDOW_H

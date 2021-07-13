@@ -18,28 +18,18 @@ Model::Model(const char* meshPath, const char* texturePath)
 			if (line[1] == ' ') { 
 				vertices.push_back(Vec3());
 				Vec3& vertex = vertices.back();
-				char* begin = line.c_str() + 2;
+				const char* begin = line.c_str() + 2;
+                char* end;
 				vertex.x = std::strtof(begin, &end);
 				begin = end;
 				vertex.y = std::strtof(begin, &end);
 				begin = end;
 				vertex.z = std::strtof(begin, &end);
 			}
-			else if(line[1] == 'n') {
-				normals.push_back(Vec3());
-				Vec3& normal = normals.back();
-				char* begin = line.c_str() + 3;
-				char* end;
-				normal.x = std::strtof(begin, &end);
-				begin = end;
-				normal.y = std::strtof(begin, &end);
-				begin = end;
-				normal.z = std::strtof(begin, &end);
-			}
 			else if (line[1] == 't') {
 				textureCoords.push_back(Vec2());
 				Vec2& coord = textureCoords.back();
-				char* begin = line.c_str() + 3;
+				const char* begin = line.c_str() + 3;
 				char* end;
 				coord.u = std::strtof(begin, &end);
 				begin = end;
@@ -50,27 +40,28 @@ Model::Model(const char* meshPath, const char* texturePath)
 			faces.push_back(Face());
 			Face& face = faces.back();
 			int aUVIndex, bUVIndex, cUVIndex;
-			char* begin = line.c_str() + 2;
+			const char* begin = line.c_str() + 2;
 			char* end;
-
+            
+            constexpr int base = 10;
 			face.a = std::strtof(begin, &end);
 			begin = end;
-			aUVIndex = std::strtol(begin, &end);
+			aUVIndex = std::strtol(begin, &end, base);
 			begin = end;
 			//Skip normals
-			begin = line.find_first_of(' ', begin - line.c_str());
+            while (*begin != ' ') begin++;
 
 			face.b = std::strtof(begin, &end);
 			begin = end;
-			bUVIndex = std::strtol(begin, &end);
+			bUVIndex = std::strtol(begin, &end, base);
 			begin = end;
-			begin = line.find_first_of(' ', begin - line.c_str());
-			
+            while (*begin != ' ') begin++;
+
 			face.c = std::strtof(begin, &end);
 			begin = end;
-			cUVIndex = std::strtol(begin, &end);
+			cUVIndex = std::strtol(begin, &end, base);
 			begin = end;
-			begin = line.find_first_of(' ', begin - line.c_str());
+            while (*begin != ' ') begin++;
 			
 			// Indices in obj file are 1-based, adjust to 0-based indices
 			face.a--;
