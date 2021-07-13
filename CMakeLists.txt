@@ -53,3 +53,8 @@ if (WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/assets")
 
 endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# SSE 4.1 flag needed for GCC
+	target_compile_options(${PROJECT_NAME} -msse4.1)
+endif()

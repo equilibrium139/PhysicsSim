@@ -287,7 +287,7 @@ void Renderer::DrawTexturedTriangleSSE(Triangle& t, const Texture& texture)
 			writeFlag = _mm_and_ps(writeFlag, _mm_cmpge_ps(w0, zero));
 			writeFlag = _mm_and_ps(writeFlag, _mm_cmpge_ps(w1, zero));
 			writeFlag = _mm_and_ps(writeFlag, _mm_cmpge_ps(w2, zero));
-			
+			// TODO: use different intrinsic to test for all zeroes			
 			// Only proceed if at least one of the four pixel centers lies inside of the triangle.
 			if (!_mm_test_all_zeros(_mm_castps_si128(writeFlag), _mm_castps_si128(writeFlag))) {
 				auto beta = _mm_mul_ps(w1, inverseTriAreaTimes2);
