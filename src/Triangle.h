@@ -40,7 +40,6 @@ inline Triangle ClipSpaceToScreenSpace(const ClipSpaceTriangle& triangle, float 
 struct Face {
 	std::uint32_t a, b, c;
 	Vec2 aUV, bUV, cUV;
-	Color color;
 };
 
 //inline bool IsFrontFacingScreenSpace(const Triangle& t) {

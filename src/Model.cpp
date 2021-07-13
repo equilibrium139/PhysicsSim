@@ -3,7 +3,7 @@
 #include "Clipping.h"
 
 #include <algorithm>
-#include <charconv>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 
@@ -18,32 +18,60 @@ Model::Model(const char* meshPath, const char* texturePath)
 			if (line[1] == ' ') { 
 				vertices.push_back(Vec3());
 				Vec3& vertex = vertices.back();
-				auto last = line.c_str() + line.size();
-				auto result = std::from_chars(line.c_str() + 2, last, vertex.x);
-				result = std::from_chars(result.ptr + 1, last, vertex.y);
-				result = std::from_chars(result.ptr + 1, last, vertex.z);
+				char* begin = line.c_str() + 2;
+				vertex.x = std::strtof(begin, &end);
+				begin = end;
+				vertex.y = std::strtof(begin, &end);
+				begin = end;
+				vertex.z = std::strtof(begin, &end);
+			}
+			else if(line[1] == 'n') {
+				normals.push_back(Vec3());
+				Vec3& normal = normals.back();
+				char* begin = line.c_str() + 3;
+				char* end;
+				normal.x = std::strtof(begin, &end);
+				begin = end;
+				normal.y = std::strtof(begin, &end);
+				begin = end;
+				normal.z = std::strtof(begin, &end);
 			}
 			else if (line[1] == 't') {
 				textureCoords.push_back(Vec2());
 				Vec2& coord = textureCoords.back();
-				auto last = line.c_str() + line.size();
-				auto result = std::from_chars(line.c_str() + 3, last, coord.u);
-				result = std::from_chars(result.ptr + 1, last, coord.v);
+				char* begin = line.c_str() + 3;
+				char* end;
+				coord.u = std::strtof(begin, &end);
+				begin = end;
+				coord.v = std::strtof(begin, &end);
 			}
 		}
 		else if (line[0] == 'f') {
 			faces.push_back(Face());
 			Face& face = faces.back();
 			int aUVIndex, bUVIndex, cUVIndex;
-			const auto start = line.c_str();
-			auto last = start + line.size();
-			auto result = std::from_chars(start + 2, last, face.a);
-			result = std::from_chars(result.ptr + 1, last, aUVIndex);
-			// Skip normals
-			result = std::from_chars(start + line.find_first_of(' ', result.ptr - start) + 1, last, face.b);
-			result = std::from_chars(result.ptr + 1, last, bUVIndex);
-			result = std::from_chars(start + line.find_first_of(' ', result.ptr - start) + 1, last, face.c);
-			result = std::from_chars(result.ptr + 1, last, cUVIndex);
+			char* begin = line.c_str() + 2;
+			char* end;
+
+			face.a = std::strtof(begin, &end);
+			begin = end;
+			aUVIndex = std::strtol(begin, &end);
+			begin = end;
+			//Skip normals
+			begin = line.find_first_of(' ', begin - line.c_str());
+
+			face.b = std::strtof(begin, &end);
+			begin = end;
+			bUVIndex = std::strtol(begin, &end);
+			begin = end;
+			begin = line.find_first_of(' ', begin - line.c_str());
+			
+			face.c = std::strtof(begin, &end);
+			begin = end;
+			cUVIndex = std::strtol(begin, &end);
+			begin = end;
+			begin = line.find_first_of(' ', begin - line.c_str());
+			
 			// Indices in obj file are 1-based, adjust to 0-based indices
 			face.a--;
 			face.b--;
@@ -54,7 +82,6 @@ Model::Model(const char* meshPath, const char* texturePath)
 			face.aUV.y = 1.0f - face.aUV.y; // Adjust so (0, 0) is at top left and (1, 1) at bottom right for tex coords
 			face.bUV.y = 1.0f - face.bUV.y;
 			face.cUV.y = 1.0f - face.cUV.y;
-			face.color = 0xFFFFFFFF;
 		}
 	}
 }
