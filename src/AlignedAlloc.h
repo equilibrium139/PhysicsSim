@@ -3,9 +3,8 @@
 
 #ifdef _MSC_VER
 #include <malloc.h>
-#else
-#include <cstdlib>
 #endif
+#include <cstdlib>
 
 inline void* AlignedAlloc(std::size_t size, std::size_t align) {
 #ifdef _MSC_VER

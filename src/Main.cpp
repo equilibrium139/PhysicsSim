@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
 			}
 			currentTime = SDL_GetTicks();
 			deltaTime = (currentTime - previousFrameTime) * msToSecondsFactor;
-			std::cout << deltaTime << '\n';
 			previousFrameTime = SDL_GetTicks();
 
 			isRunning = ProcessInput(scene.cam, deltaTime);

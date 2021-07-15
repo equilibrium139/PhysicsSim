@@ -46,20 +46,20 @@ Model::Model(const char* meshPath, const char* texturePath)
             constexpr int base = 10;
 			face.a = std::strtof(begin, &end);
 			begin = end;
-			aUVIndex = std::strtol(begin, &end, base);
+			aUVIndex = std::strtol(begin + 1, &end, base);
 			begin = end;
 			//Skip normals
             while (*begin != ' ') begin++;
 
 			face.b = std::strtof(begin, &end);
 			begin = end;
-			bUVIndex = std::strtol(begin, &end, base);
+			bUVIndex = std::strtol(begin + 1, &end, base);
 			begin = end;
             while (*begin != ' ') begin++;
 
 			face.c = std::strtof(begin, &end);
 			begin = end;
-			cUVIndex = std::strtol(begin, &end, base);
+			cUVIndex = std::strtol(begin + 1, &end, base);
 			begin = end;
             while (*begin != ' ') begin++;
 			
